@@ -5,7 +5,6 @@ using UnityEngine.AI;
 
 public class EnnemyAI : MonoBehaviour
 {
-    public GameObject ennemy;
     private bool idleStarted = false;
     private bool idleAllowed = true;
     public bool IdleAllowed
@@ -13,13 +12,14 @@ public class EnnemyAI : MonoBehaviour
         get { return idleAllowed; }
         set { idleAllowed = value; }
     }
-    public NavMeshAgent navAgent;
+    private NavMeshAgent navAgent;
     public float walkRadius;
-    public Animator AnimEnnemy;
+    private Animator AnimEnnemy;
 
     private void Start()
     {
-        AnimEnnemy = ennemy.GetComponent<Animator>();
+        AnimEnnemy = GetComponent<Animator>();
+        navAgent = GetComponent<NavMeshAgent>();
     }
 
     public void Update()
@@ -42,14 +42,16 @@ public class EnnemyAI : MonoBehaviour
             NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, walkRadius, 1);
             Vector3 finalPosition = hit.position;
             //start path
+            navAgent.speed = (name == "Run") ? 2f : 1f;
+            int state = (name == "Run") ? 2 : 1;
             navAgent.SetDestination(finalPosition);
-            AnimEnnemy.SetBool("is"+name+"ing", true);
-            while (!arrived)
+            AnimEnnemy.SetInteger("actionState", state);
+            while (!arrived && idleAllowed)
             {
                 if (!navAgent.pathPending && navAgent.remainingDistance == 0)
                 {
                     arrived = true;
-                    AnimEnnemy.SetBool("is" + name + "ing", false);
+                    AnimEnnemy.SetInteger("actionState", 0);
                 }
                 yield return null;
             }

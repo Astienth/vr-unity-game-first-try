@@ -9,6 +9,7 @@ public class EnemyCollider : MonoBehaviour
     private NavMeshAgent m_NavMeshAgent;
     private Vector3 m_PlayerPosition;
     private EnnemyAI m_EnemyAI;
+    private bool m_coroutineStarted = false;
 
     private void Start()
     {
@@ -19,12 +20,9 @@ public class EnemyCollider : MonoBehaviour
 
     private void OnTriggerEnter(Collider otherCol)
     {
-        if(otherCol.name == "XR Origin")
+        if(otherCol.name == "XR Origin" && !m_coroutineStarted)
         {
-            m_EnemyAI.IdleAllowed = false;
-            m_PlayerPosition = otherCol.transform.position;
-            string move = (m_Animator.HasState(0, Animator.StringToHash("Run"))) ? "Runn" : "Walk";
-            StartCoroutine(runToPlayer(move));
+            StartCoroutine(runToPlayer(otherCol));
         }
     }
 
@@ -32,27 +30,33 @@ public class EnemyCollider : MonoBehaviour
     {
         if (otherCol.name == "XR Origin")
         {
-            m_PlayerPosition = otherCol.transform.position;
-            Debug.Log(m_PlayerPosition);
+            if (!m_coroutineStarted)
+            {
+                StartCoroutine(runToPlayer(otherCol));
+            }
         }
     }
 
-    private void OnTriggerExit(Collider otherCol)
+    private IEnumerator runToPlayer(Collider PlayerCol)
     {
-        if (otherCol.name == "XR Origin")
+        //init needed params
+        m_coroutineStarted = true;
+        m_EnemyAI.IdleAllowed = false;
+        m_Animator.SetInteger("actionState", 2);
+        m_NavMeshAgent.speed = 2f;
+        m_PlayerPosition = PlayerCol.transform.position;
+        m_NavMeshAgent.SetDestination(m_PlayerPosition);
+        //loop
+        while ( m_coroutineStarted &&
+            m_NavMeshAgent.remainingDistance > 0.5f &&
+            m_NavMeshAgent.remainingDistance < 20f)
         {
-            m_EnemyAI.IdleAllowed = true;
-        }
-    }
-
-    private IEnumerator runToPlayer(string move)
-    {
-        m_Animator.SetBool("is" + move + "ing", true);
-        while (m_NavMeshAgent.remainingDistance > 1f)
-        {
-            m_NavMeshAgent.SetDestination(m_PlayerPosition);
+            m_PlayerPosition = PlayerCol.transform.position;
             yield return null;
         }
-        m_Animator.SetBool("is" + move + "ing", false);
+        //exit loop, reset params
+        m_Animator.SetInteger("actionState", 0);
+        m_coroutineStarted = false;
+        m_EnemyAI.IdleAllowed = true;
     }
 }
