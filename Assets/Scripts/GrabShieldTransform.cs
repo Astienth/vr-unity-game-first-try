@@ -33,12 +33,10 @@ public class GrabShieldTransform : MonoBehaviour
                 if (interactable.selectingInteractor.gameObject.name == "LeftHand Controller")
                 {
                     //transform.parent.SetPositionAndRotation(leftHandPosition,leftHandRotation);
-                    transform.parent.SetPositionAndRotation(new Vector3(0,0,0), new Quaternion(0,0,0,0));
                 }
                 else
                 {
                     //transform.parent.SetPositionAndRotation(rightHandPosition,rightHandRotation);
-                    transform.parent.SetPositionAndRotation(new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 0));
                 }
                 updated = true;
             }

@@ -37,14 +37,14 @@ public class GrabSwordTransform : MonoBehaviour
                     isTrigger = false;
                 }
 
-              /*  if (interactable.selectingInteractor.gameObject.name == "LeftHand Controller")
+                if (interactable.selectingInteractor.gameObject.name == "LeftHand Controller")
                 {
-                    transform.parent.SetPositionAndRotation(leftHandPosition,leftHandRotation);
+                    //transform.parent.SetPositionAndRotation(leftHandPosition,leftHandRotation);
                 }
                 else
                 {
-                    transform.parent.SetPositionAndRotation(rightHandPosition, rightHandRotation);
-                }*/
+                    //transform.parent.SetPositionAndRotation(rightHandPosition, rightHandRotation);
+                }
                 updated = true;
             }
         }
