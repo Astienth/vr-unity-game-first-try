@@ -15,40 +15,37 @@ public class EnnemyAI : MonoBehaviour
     {
         if (!idleStarted && idleAllowed)
         {
-            StartCoroutine(idleCoroutine());
+            StartCoroutine(WalkToCoroutine());
             idleStarted = true;
         }
     }
 
-    private IEnumerator MoveToCoroutine(string animName)
+    private IEnumerator WalkToCoroutine()
     {
-        bool arrived = false;
         Animator AnimEnnemy = ennemy.GetComponent<Animator>();
-        AnimEnnemy.Play(animName);
-        //calculate target position
-        Vector3 randomDirection = Random.insideUnitSphere * walkRadius;
-        randomDirection += transform.position;
-        NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, walkRadius, 1);
-        Vector3 finalPosition = hit.position;
-        //start path
-        navAgent.SetDestination(finalPosition);
-        while (!arrived)
-        {
-            if (navAgent.remainingDistance <= navAgent.stoppingDistance + 0.1f)
-            {
-                arrived = true;
-            }
-            yield return null;
-        }
-        AnimEnnemy.Play("Idle");
-        yield return new WaitForSeconds(Random.Range(4,8));
-    }
 
-    private IEnumerator idleCoroutine()
-    {
         while (idleAllowed)
         {
-            yield return MoveToCoroutine("Walk");
+            bool arrived = false;
+            //calculate target position
+            Vector3 randomDirection = Random.insideUnitSphere * walkRadius;
+            randomDirection += transform.position;
+            NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, walkRadius, 1);
+            Vector3 finalPosition = hit.position;
+            //start path
+            navAgent.SetDestination(finalPosition);
+            AnimEnnemy.SetBool("isWalking", true);
+            while (!arrived)
+            {
+                if (!navAgent.pathPending && navAgent.remainingDistance == 0)
+                {
+                    arrived = true;
+                    AnimEnnemy.SetBool("isWalking", false);
+                }
+                yield return null;
+            }
+            int delay = Random.Range(4, 8);
+            yield return new WaitForSeconds(delay);
         }
     }
 }
