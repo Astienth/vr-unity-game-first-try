@@ -8,22 +8,31 @@ public class EnnemyAI : MonoBehaviour
     public GameObject ennemy;
     private bool idleStarted = false;
     private bool idleAllowed = true;
+    public bool IdleAllowed
+    {
+        get { return idleAllowed; }
+        set { idleAllowed = value; }
+    }
     public NavMeshAgent navAgent;
     public float walkRadius;
+    public Animator AnimEnnemy;
+
+    private void Start()
+    {
+        AnimEnnemy = ennemy.GetComponent<Animator>();
+    }
 
     public void Update()
     {
         if (!idleStarted && idleAllowed)
         {
-            StartCoroutine(WalkToCoroutine());
-            idleStarted = true;
+            StartCoroutine(MoveToCoroutine("Walk"));
         }
     }
 
-    private IEnumerator WalkToCoroutine()
+    private IEnumerator MoveToCoroutine(string name)
     {
-        Animator AnimEnnemy = ennemy.GetComponent<Animator>();
-
+        idleStarted = true;
         while (idleAllowed)
         {
             bool arrived = false;
@@ -34,18 +43,19 @@ public class EnnemyAI : MonoBehaviour
             Vector3 finalPosition = hit.position;
             //start path
             navAgent.SetDestination(finalPosition);
-            AnimEnnemy.SetBool("isWalking", true);
+            AnimEnnemy.SetBool("is"+name+"ing", true);
             while (!arrived)
             {
                 if (!navAgent.pathPending && navAgent.remainingDistance == 0)
                 {
                     arrived = true;
-                    AnimEnnemy.SetBool("isWalking", false);
+                    AnimEnnemy.SetBool("is" + name + "ing", false);
                 }
                 yield return null;
             }
             int delay = Random.Range(4, 8);
             yield return new WaitForSeconds(delay);
         }
+        idleStarted = false;
     }
 }
