@@ -45,13 +45,13 @@ public class EnemyCollider : MonoBehaviour
         m_Animator.SetInteger("actionState", 2);
         m_NavMeshAgent.speed = 2f;
         m_PlayerPosition = PlayerCol.transform.position;
-        m_NavMeshAgent.SetDestination(m_PlayerPosition);
         //loop
         while ( m_coroutineStarted &&
             m_NavMeshAgent.remainingDistance > 0.5f &&
             m_NavMeshAgent.remainingDistance < 20f)
         {
             m_PlayerPosition = PlayerCol.transform.position;
+            m_NavMeshAgent.SetDestination(m_PlayerPosition);
             yield return null;
         }
         //exit loop, reset params
